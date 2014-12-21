@@ -1,0 +1,7 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^Performance.*\.RData$
+^Rprof.out$
+^.*_draft$
+^paper$
+^R/test.*\.R$
