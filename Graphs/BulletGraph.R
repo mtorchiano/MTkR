@@ -103,7 +103,7 @@ bulletgraph <- function(x,ref,limits, name=NULL, subname="", width=0.4, col=NULL
 ## test:
 
 bulletgraph.demo <- function(){
-	par(mfrow=c(3,1))	
+	par(mfrow=c(3,1), mar=c(2,12,.1,1))	
 	par(mar=c(2,9,.1,1))
 	# reproducing Stephen Few example in the specification document
 	bulletgraph(x=270,ref=260,limits=c(0,200,250,300),
