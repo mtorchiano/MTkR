@@ -30,7 +30,7 @@
 #
 # usage:
 #       x: the value of the indicator to be plotted as the main bar
-#     ref: the reference value to be plotted as a thick line
+#     ref: the reference value(s) to be plotted as a thick line
 #  limits: the boundaries of the limits to be plotted as backgound
 #		  a four element vector providing: base, 1st limit, 2nd limit, upper limit.
 #		  The base and limit are used for defining the scale
@@ -39,63 +39,99 @@
 # palette: the colors for the background limits
 #
 
-bulletgraph.palette <- function(n,colored){
-	if(colored){ # this colors are up to my personal taste ;-)
-		if(n==2) cols = c("firebrick","dodgerblue")
-		if(n==3) cols = c("firebrick","orange","olivedrab1")
-		if(n==4) cols = c("firebrick","orange","powderblue","olivedrab1")
-		if(n==5) cols = c("firebrick","orange","powderblue","plum","olivedrab1")
-		if(n>5) cols = hsv((n:1 + n*0.3)/(n*1.3),.9,.8+(1:n/(n*5)))
-	}else{ # these are the gray levels recommended by Stephen Few
-		if(n==2) cols = hsv(0,0,c(.65,.9))
-		if(n==3) cols = hsv(0,0,c(.6,.75,.9))
-		if(n==4) cols = hsv(0,0,c(.5,.65,.8,.9))
-		if(n==5) cols = hsv(0,0,c(.5,.65,.8,.9,.97))
-		if(n>5) cols = hsv(1,0,seq(.4,.97,length.out=n))
-	}
+bulletgraph.palette <- function(n,shades){
+  if(is.null(shades) ){ ## S.Few recommended gray levels
+    if(n==2) cols = hsv(0,0,c(.65,.9))
+    if(n==3) cols = hsv(0,0,c(.6,.75,.9))
+    if(n==4) cols = hsv(0,0,c(.5,.65,.8,.9))
+    if(n==5) cols = hsv(0,0,c(.5,.65,.8,.9,.97))
+    if(n>5) cols = hsv(1,0,seq(.4,.97,length.out=n))  
+  }else{
+    if(length(shades)==1){
+      cols = sapply(n:1*1/(n+1),adjustcolor,col=shades)
+    }else{
+      cols = shades
+    }
+  }
 	return(cols)
 }
 
-bulletgraph <- function(x,ref,limits, name=NULL, subname="", width=0.4, col=NULL, 
-						palette=NULL,colored=T){
+bulletgraph <- function(x,ref,limits, name=NULL, subname="", width=0.4, 
+                        col=par("fg"), shades=NULL, reverse=F){
 	if(length(limits)<3){
 		stop("limits must be a vector with at least three elements")
 	}
-	if(length(x)!=1){
-		stop(paste("x must be a scalar",name))
+#	if(length(x)!=1){
+#		stop(paste("x must be a scalar",name))
+#	}
+  nx = length(x)
+  if(is.vector(limits)){
+    limits = matrix(limits,nrow=1)
+  }
+  if(nx!=1 & dim(limits)[1]!=nx){
+    stop("when 'limits' is a matrix it must have as many rows a the length of 'x'")
+  }
+  #limits=sort(limits)  
+  limits = t(apply(limits,1,sort))
+  if(any(x<limits[,1] | x>limits[,dim(limits)[2]])){
+    stop("'x' must be within outer 'limits'")
+  }
+  if(any(ref<limits[,1] | ref>limits[,dim(limits)[2]])){
+    stop("'ref' must be within outer 'limits'")
+  }
+	if(width<.01 | width>=1){
+		stop("'width' must be in the range [0 .. 1]")
 	}
-	limits=sort(limits)
-	if(x<limits[1] | x>limits[4]){
-		stop("x must be within outer limits")
-	}
-	if(ref<limits[1] | ref>limits[4]){
-		stop("x must be within outer limits")
-	}
-	if(width<.01 | width>1){
-		stop("width must be in the range [0 .. 1]")
-	}
-	if(is.null(name)) name = sys.call()[[2]]
-	if(is.null(palette)){
-		palette = bulletgraph.palette(length(limits)-1,colored)
-	}
-	if(is.null(col)){
-		if(colored) col="steelblue3"
-		else col = "black"
-	}
-	n = length(limits)
-	ranges = matrix(tail(limits,-1)-c(0,head(tail(limits,-1),n-2)),n-1)
-	barplot(ranges,col=palette,border=NA,horiz=T,
-				xlim=c(min(limits),max(limits)),xpd=F)
-	segments(ref,.3,ref,1.1,lwd=3)
-	barplot(x[1],width= width,names.arg=name,cex.names=1,
-			space=((1-width)/2+0.2)/width,
+	if(is.null(name)) name = paste(sys.call()[[2]],1:nx,sep=".")
+	shades = bulletgraph.palette(dim(limits)[2]-1,shades)
+  if(reverse){
+    shades = shades[seq(length(shades),1)]
+  }
+  if(is.vector(ref)){
+    ref = matrix(ref,nrow=1)
+  }
+  ns=dim(ref)[2]
+  d = dim(limits)
+  if(d[1]==1){
+    ranges = matrix(limits[,2:d[2]] - c(min(0,limits[,1]),limits[,2:(d[2]-1)]),nrow=1)
+    if(min(limits)<0){
+      ranges <- cbind(min(limits[,1],0),ranges)
+      shades <- c(NA,shades)
+    }
+  }else{
+    ranges = limits[,2:d[2]] - cbind(sapply(limits[,1],0),limits[,2:(d[2]-1)])  
+    if(min(limits)<0){
+      ranges <- cbind(sapply(limits[,1],0),ranges) 
+      shades <- c(NA,shades)  
+    }
+  }
+	
+  barplot(t(ranges),col=shades,border=NA,horiz=T,
+        xlim=c(min(limits),max(limits)),xpd=F)
+  if(min(limits)<0){
+    segments(0,1:nx*1.2,0,1:nx*1.2-1,col="gray1")
+  }
+
+  segments(as.numeric(ref),rep(0:(nx-1)*1.2+.25,ns),
+           as.numeric(ref),rep(0:(nx-1)*1.2+1.15,ns),
+         lwd=rep(3*(ns:1/ns),each=nx),
+         col=rep(sapply(ns:1/ns,adjustcolor,col="black"),each=nx))
+
+  ## barplot bug workaround
+	barplot(x,width= width,names.arg=name,cex.names=1,beside=F,
+	    space=(if(nx==2) c((.2 + (1-width)),(.2 + (1-width)/2))
+	          else c((.2 + (1-width)/2),rep((.2 + (1-width)),nx-1)))/width,
 			add=T,horiz=T,border=NA,col=col,las=1,xpd=F)
 	mtext(subname,side=2,line=1,at=0.4,cex=0.6,adj=1,padj=1,las=2)
-  	if(limits[1]!=0){
+  if(limits[1]>0){
   		warning("Bars should be drawn on a zero-based scale: using a jagged base to remark such non conformance.")
-   		jit = (limits[4] - limits[1])/100
-		x = c(rep(c(limits[1],limits[1]+jit),6),0)
+   		jit = (max(limits) - min(limits))/100
+		x = c(rep(c(min(limits),min(limits)+jit),6),0)
 		y = c(2:13/10,1.2)
+
+    x = rep(c(0,rep(c(min(limits),min(limits)+jit),6),0),nx)
+		y = c(.2,seq(.2,1.3,.1),1.3) + rep(0:(nx-1)*1.2,each=14)
+		
 		polygon(x,y,col="white",border="white")
 	}
 }
@@ -103,19 +139,41 @@ bulletgraph <- function(x,ref,limits, name=NULL, subname="", width=0.4, col=NULL
 ## test:
 
 bulletgraph.demo <- function(){
-	par(mfrow=c(3,1), mar=c(2,12,.1,1))	
+	par(mfrow=c(4,1), mar=c(2,12,.1,1))	
 	par(mar=c(2,9,.1,1))
 	# reproducing Stephen Few example in the specification document
 	bulletgraph(x=270,ref=260,limits=c(0,200,250,300),
-            name= "Revenue 2005 YTD",subname="(U.S. $ in thousands)",colored=F)
+            name= "Revenue 2005 YTD",subname="(U.S. $ in thousands)")
 
 	# colored version of the above
 	bulletgraph(x=270,ref=260,limits=c(0,200,250,300),
+            col="steelblue4",shades="dodgerblue",
             name= "Revenue 2005 YTD",subname="(U.S. $ in thousands)")
 
-	# an example with non-zero basis (no recommended)
+	# an example with non-zero basis (not recommended, a warning is issued)
 	x = 0.75
 	ref=0.83
 	limits=c(0.4,.6,.9,1)
 	bulletgraph(x,ref,limits,width=0.6)
+	
+  # as above + two reference lines
+	ref=c(0.83,0.8)
+	bulletgraph(x,ref,limits,width=0.6,shades="firebrick",col="steelblue4")
+	
+  N=4
+  par(mfrow=c(1,1),mar=c(2,6,.1,1))
+	x = runif(N,.5,1)
+  limits=matrix(rep(c(.6,.7,.9,1),each=N)+runif(N,-.1,.1),nrow=N)
+  limits[,1] = .4
+  limits[,4] = 1
+  ref =matrix(rep(c(.85,.9,.5),each=N)*runif(N,.95,1.1),nrow=N)
+  bulletgraph(x=x,ref=ref,limits=limits,name=paste("Indicator",1:N))
+	bulletgraph(x=x,ref=ref,limits=limits,name=paste("Indicator",1:N),shades="olivedrab")
+	
+  
+	bulletgraph(-20,200,c(-50,150,200,250),"Profit","(1,000s)")
+
+
+	bulletgraph(59,75,c(0,40,80,120),"Expenses ($1,000s)",reverse=T)
+	
 }
