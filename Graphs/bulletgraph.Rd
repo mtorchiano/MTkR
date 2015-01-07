@@ -24,6 +24,9 @@ a vector or a matrix containing the value(s) to be plotted as reference thick ve
   \item{limits}{
 a vector or a matrix representing the boundaries of the limits to be plotted as backgounds, the length (if vector), or number of columns must be at least 3. The extreme values (\code{min} and \code{max}) define the scale limits. Both the indicator value(s) and the reference(s) must be within the scale.
 }
+  \item{projection}{
+    a numerical or a vector representing the projected value of the indicator, e.g. at the end of a standard period of time
+  }
   \item{name}{ a caracter value or vector with the name(s) of the indicators.}
   \item{subname}{ a caracter value or vector with the subtitles(s) of the indicators.}
   \item{width}{
@@ -37,6 +40,10 @@ a vector or a matrix representing the boundaries of the limits to be plotted as 
   }
   \item{reverse}{
   boolean, indicates whether the background shades should be reversed.
+  }
+  \item{perc}{
+  indicates whether the axis should be printed as percentage, if all the values are below 1
+  then it defaults to \code{TRUE}, otherwise to \code{FALSE}.
   }
 }
 \details{

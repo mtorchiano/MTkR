@@ -56,8 +56,9 @@ bulletgraph.palette <- function(n,shades){
 	return(cols)
 }
 
-bulletgraph <- function(x,ref,limits, name=NULL, subname="", width=0.4, 
-                        col=par("fg"), shades=NULL, reverse=F){
+bulletgraph <- function(x,ref,limits, projection=NULL, name=NULL, subname="", width=0.4, 
+                        col=par("fg"), shades=NULL, reverse=F, 
+                        perc=all(abs(c(x,ref,limits))<=1),...){
 	if(length(limits)<3){
 		stop("limits must be a vector with at least three elements")
 	}
@@ -105,26 +106,43 @@ bulletgraph <- function(x,ref,limits, name=NULL, subname="", width=0.4,
       shades <- c(NA,shades)  
     }
   }
-	
+  
   barplot(t(ranges),col=shades,border=NA,horiz=T,
-        xlim=c(min(limits),max(limits)),xpd=F)
+        xlim=c(min(limits),max(limits)),xpd=F,xaxt=if(perc) "n"  else "s",...)
+  if(perc){
+    axis(1, at=pretty(limits), lab=paste0(pretty(limits) * 100,"%"))
+  }
   if(min(limits)<0){
     segments(0,1:nx*1.2,0,1:nx*1.2-1,col="gray1")
   }
+  pars = list(...)
 
-  segments(as.numeric(ref),rep(0:(nx-1)*1.2+.25,ns),
-           as.numeric(ref),rep(0:(nx-1)*1.2+1.15,ns),
+  dist = .1
+  segments(as.numeric(ref),rep(0:(nx-1)*1.2+.2+dist,ns),
+           as.numeric(ref),rep(0:(nx-1)*1.2+1.2-dist,ns),
          lwd=rep(3*(ns:1/ns),each=nx),
-         col=rep(sapply(ns:1/ns,adjustcolor,col="black"),each=nx))
-
-  ## barplot bug workaround
-	barplot(x,width= width,names.arg=name,cex.names=1,beside=F,
-	    space=(if(nx==2) c((.2 + (1-width)),(.2 + (1-width)/2))
+         col=rep(sapply(ns:1/ns,adjustcolor,col=col),each=nx))
+  if(limits[1]>0){
+    if(is.null(pars$cex.names)){c=1}else{c=pars$cex.names}
+    mtext(name,side=2,line=1,at=1:nx*1.2-.5,cex=c,las=2,padj=1)
+    points(x,1:nx*1.2-.5,pch=4,cex=2*c)
+  }else{
+    if(!is.null(projection)){
+      barplot(projection,width= width,beside=F,
+              space=(if(nx==2) c((.2 + (1-width)),(.2 + (1-width)/2))
+                     else c((.2 + (1-width)/2),rep((.2 + (1-width)),nx-1)))/width,
+              add=T,horiz=T,border=NA,col=adjustcolor(col,.5),las=1,xpd=F,xaxt="n",...)
+      
+    }
+    ## barplot bug workaround for spacing of 2 bars
+	  barplot(x,width= width,names.arg=name,beside=F,
+	      space=(if(nx==2) c((.2 + (1-width)),(.2 + (1-width)/2))
 	          else c((.2 + (1-width)/2),rep((.2 + (1-width)),nx-1)))/width,
-			add=T,horiz=T,border=NA,col=col,las=1,xpd=F)
+			  add=T,horiz=T,border=NA,col=col,las=1,xpd=F,xaxt="n",...)
+  }
 	mtext(subname,side=2,line=1,at=0.4,cex=0.6,adj=1,padj=1,las=2)
   if(limits[1]>0){
-  		warning("Bars should be drawn on a zero-based scale: using a jagged base to remark such non conformance.")
+  #		warning("Bars should be drawn on a zero-based scale: using a jagged base to remark such non conformance.")
    		jit = (max(limits) - min(limits))/100
 		x = c(rep(c(min(limits),min(limits)+jit),6),0)
 		y = c(2:13/10,1.2)
