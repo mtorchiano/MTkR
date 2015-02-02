@@ -126,8 +126,8 @@ output:
 ````
 
 The template file contains most of the tricks I developed to obtain a IEEE CS guidelines compliant file.
-The template can be downloaded from the following link: 
-http://github.com/mtorchiano/MTkR/MD for papers.
+The template can be downloaded from the GitHub repository: 
+[http://github.com/mtorchiano/MTkR/MD for papers](https://github.com/mtorchiano/MTkR/tree/master/MD%20for%20papers).
 The template refers to the IEEE tran style that is contained in the `IEEEtran.cls` that can be
 downloaded e.g. from the ICSE formatting page [@ICSEformatting].
 
