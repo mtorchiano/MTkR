@@ -1,0 +1,29 @@
+---
+title: "Example paper"
+output: 
+  pdf_document:
+    template: IEEEtran_template.tex
+    keep_tex: true
+    pandoc_args: ["--biblatex"] # makes citations converted into latex \cite*
+    fig_caption: true
+
+author: 
+  - name: Marco Torchiano
+    affiliation: 1        # affiliation code *must* be a number appearing in the affiliations
+
+affiliation: 
+  - code: 1
+    organization: "Politecnico di Torino"
+    address: | 
+      Torino, Italy
+    email: marco.torchiano@polito.it
+
+abstract: |
+  the abstract can span
+  several lines.
+  
+  Include paragraphs and
+  _emphasized_ words.
+---
+
+This is an example.
