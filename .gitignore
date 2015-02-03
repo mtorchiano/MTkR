@@ -24,3 +24,7 @@ effsize/vignettes_draft/*
 effsize/*.RData
 
 .Rproj.user
+
+Graphs/.Rhistory
+
+Graphs/.RData

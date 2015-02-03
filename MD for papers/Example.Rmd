@@ -8,15 +8,15 @@ output:
     fig_caption: true
 
 author: 
-  - name: Marco Torchiano
+  - name: Your Name
     affiliation: 1        # affiliation code *must* be a number appearing in the affiliations
 
 affiliation: 
   - code: 1
-    organization: "Politecnico di Torino"
+    organization: "Your Organization Name"
     address: | 
-      Torino, Italy
-    email: marco.torchiano@polito.it
+      A City, Country
+    email: your.name@your.org
 
 abstract: |
   the abstract can span
@@ -26,4 +26,8 @@ abstract: |
   _emphasized_ words.
 ---
 
+# Introduction
+
 This is an example.
+
+# Conclusions

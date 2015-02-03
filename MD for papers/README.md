@@ -22,4 +22,8 @@ _Context_: paper based on empirical studies are becoming more and more common in
   _Conclusions_: starting from an R Markdown document we can generate a compliant paper that
   allows reproducible data analys one cornerstone of an open scientific method. Actually this very paper
   has been written using the presented approach.
+  
+See the [full article](https://github.com/mtorchiano/MTkR/blob/master/MD%20for%20papers/IEEE_Paper_with_Rmd.pdf?raw=true) and download the [template](https://github.com/mtorchiano/MTkR/raw/master/MD%20for%20papers/IEEEtran_template.tex) and the [article source code](https://github.com/mtorchiano/MTkR/raw/master/MD%20for%20papers/IEEE_Paper_with_Rmd.Rmd) for starting a new paper.
+
+
 
