@@ -1,0 +1,11 @@
+.RData
+.Rhistory
+*.bbl
+*.aux
+*.log
+*.synctex.gz
+*_files/*
+Example.pdf
+Example.tex
+IEEE_Paper_with_Rmd.html
+IEEE_Paper_with_Rmd.tex
